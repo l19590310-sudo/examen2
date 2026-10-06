@@ -17,6 +17,9 @@
                 <div class="content">
                     {{ post.content }}
                     </div>
+                    <a href="{{ url_for('update_post', id = post.id )}}" class="button is-small is-link is-outlined">Actualizar<i class="fa-solid fa-pen-to-square"></i></a>
+<a href="{{ url_for('delete_post', id = post.id )}}" class="button is-small is-danger is-outlined">Eliminar<i class="fa-solid fa-trash"></i></a>
+                
             </div>
         </div>
         {% endfor %}
