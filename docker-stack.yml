@@ -15,7 +15,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - node.hostname == instance-20261005-2053
+          - node.hostname == instance-20260930-1814
       restart_policy:
         condition: on-failure
 
