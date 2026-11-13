@@ -1,0 +1,53 @@
+name: Tag on PR Merge
+
+run-name: ${{ github.event.pull_request.title }}
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  tag_on_merge:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+
+      - name: Validate tag
+        env:
+          TAG_NAME: ${{ github.event.pull_request.title }}
+        run: |
+          if [[ ! "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: El titulo debe ser una version como v1.2.1"
+            exit 1
+          fi
+
+          if git rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null; then
+            echo "Error: El tag $TAG_NAME ya existe"
+            exit 1
+          fi
+
+      - name: Create and push tag
+        env:
+          TAG_NAME: ${{ github.event.pull_request.title }}
+        run: |
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Show tag
+        env:
+          TAG_NAME: ${{ github.event.pull_request.title }}
+        run: |
+          echo "### Tag generado: $TAG_NAME" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version publicada correctamente" >> "$GITHUB_STEP_SUMMARY"
